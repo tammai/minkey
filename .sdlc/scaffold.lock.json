@@ -136,6 +136,10 @@
       "Bash(swift test:*)",
       "Bash(swift format lint --strict -r Package.swift Sources Tests:*)",
       "Bash(swift build -c release:*)"
+    ],
+    ".claude/settings.local.json#plugin": [
+      "extraKnownMarketplaces.sdlc",
+      "enabledPlugins.sdlc@sdlc"
     ]
   },
   "migrations": {
@@ -153,7 +157,8 @@
       "rules",
       "guardrails",
       "lint",
-      "allowlist"
+      "allowlist",
+      "enable-plugin"
     ],
     "complete": false
   },
