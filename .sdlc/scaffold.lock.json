@@ -14,8 +14,37 @@
     "completed_steps": [
       "detect",
       "stack",
-      "skeleton"
+      "skeleton",
+      "commands"
     ],
     "complete": false
+  },
+  "command_runs": {
+    "(root)": {
+      "install": {
+        "command": "swift package resolve",
+        "ran": true,
+        "exit": 0,
+        "at": "2026-10-29T13:20:25Z"
+      },
+      "lint": {
+        "command": "swift format lint --strict -r Package.swift Sources Tests",
+        "ran": true,
+        "exit": 0,
+        "at": "2026-10-29T13:20:26Z"
+      },
+      "build": {
+        "command": "swift build -c release",
+        "ran": true,
+        "exit": 0,
+        "at": "2026-10-29T13:20:26Z"
+      },
+      "test": {
+        "command": "swift test",
+        "ran": true,
+        "exit": 0,
+        "at": "2026-10-29T13:20:28Z"
+      }
+    }
   }
 }
