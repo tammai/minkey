@@ -13,5 +13,10 @@
     "lint": "swift format lint --strict -r Package.swift Sources Tests",
     "typecheck": null,
     "build": "swift build -c release"
+  },
+  "ci": {
+    "os": [
+      "macos-15"
+    ]
   }
 }
