@@ -13,7 +13,8 @@
     "kind": "greenfield",
     "completed_steps": [
       "detect",
-      "stack"
+      "stack",
+      "skeleton"
     ],
     "complete": false
   }
