@@ -8,19 +8,25 @@ public enum ToneStyle: Sendable {
 /// Turns Telex keystrokes into the current Vietnamese word.
 public struct TelexEngine: Sendable {
     public var toneStyle: ToneStyle
+    public var spellCheck: Bool
 
     private var letters: [Letter] = []
     /// Set by an undo: the rest of the word is typed as plain letters, so a repeated key never toggles.
     private var isLiteral = false
+    /// The keys behind `letters`, for restoring a word that ends up not being Vietnamese; nil once a Delete
+    /// inside a changed word makes them unknowable.
+    private var keys: [Character]? = []
 
-    public init(toneStyle: ToneStyle = .new) {
+    public init(toneStyle: ToneStyle = .new, spellCheck: Bool = true) {
         self.toneStyle = toneStyle
+        self.spellCheck = spellCheck
     }
 
     public var word: String { letters.map(\.rendered).joined() }
 
     public mutating func type(_ key: Character) {
-        if isLiteral || !apply(key) {
+        keys?.append(key)
+        if isLiteral || !applyChecked(key) {
             letters.append(Letter(key))
             if !isLiteral { placeTone() }
         }
@@ -28,8 +34,36 @@ public struct TelexEngine: Sendable {
 
     public mutating func deleteBackward() {
         guard !letters.isEmpty else { return }
+        if let typed = keys, String(typed) == word {
+            keys?.removeLast()
+        } else {
+            keys = nil
+        }
         letters.removeLast()
-        if letters.isEmpty { isLiteral = false }
+        if letters.isEmpty {
+            isLiteral = false
+            keys = []
+        }
+    }
+
+    /// Finishes the word at a boundary key: one that isn't Vietnamese goes back to the keys as typed.
+    public mutating func endWord() -> String {
+        var text = word
+        if spellCheck, !isLiteral, let typed = keys, !Syllable.isValid(letters) { text = String(typed) }
+        letters = []
+        isLiteral = false
+        keys = []
+        return text
+    }
+
+    private mutating func applyChecked(_ key: Character) -> Bool {
+        let before = (letters, isLiteral)
+        guard apply(key) else { return false }
+        if spellCheck, !isLiteral, !Syllable.canBecomeValid(letters) {
+            (letters, isLiteral) = before
+            return false
+        }
+        return true
     }
 
     private static let toneKeys: [Character: Tone] = ["s": .acute, "f": .grave, "r": .hook, "x": .tilde, "j": .dot]
