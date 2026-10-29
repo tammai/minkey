@@ -2,5 +2,7 @@
 # Registers minkey for the user at the console, so it appears in Input Sources without logging out.
 user=$(stat -f %Su /dev/console)
 pkill -x Minkey || true
+# Nobody logged in (or Setup Assistant): minkey registers itself at the user's first login instead.
+case "$user" in root | _mbsetupuser | loginwindow | "") exit 0 ;; esac
 launchctl asuser "$(id -u "$user")" sudo -u "$user" "/Library/Input Methods/Minkey.app/Contents/MacOS/Minkey" --install || true
 exit 0

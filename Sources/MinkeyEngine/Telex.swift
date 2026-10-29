@@ -46,6 +46,14 @@ public struct TelexEngine: Sendable {
         }
     }
 
+    /// Whether `word` is made only of letters the engine can rebuild exactly, so resuming it changes nothing.
+    public static func canRepresent(_ word: String) -> Bool {
+        word.allSatisfy { character in
+            let letter = Letter(precomposed: character)
+            return letter.isVietnamese && letter.rendered == String(character).precomposedStringWithCanonicalMapping
+        }
+    }
+
     /// Continues `word`, already on screen, as the word being typed.
     public mutating func resume(_ word: String) {
         letters = word.map(Letter.init(precomposed:))
@@ -55,12 +63,26 @@ public struct TelexEngine: Sendable {
 
     /// Finishes the word at a boundary key: one that isn't Vietnamese goes back to the keys as typed.
     public mutating func endWord() -> String {
+        if spellCheck, !isLiteral, !Syllable.isValid(letters) { openHornedPair() }
         var text = word
         if spellCheck, !isLiteral, let typed = keys, !Syllable.isValid(letters) { text = String(typed) }
         letters = []
         isLiteral = false
         keys = []
         return text
+    }
+
+    /// `w` always makes `ươ`, but with no coda after it the word is `uơ` (`thuở`, `huơ`).
+    private mutating func openHornedPair() {
+        var candidate = letters
+        guard
+            let i = candidate.indices.dropLast().first(where: {
+                candidate[$0].base == "u" && candidate[$0].shape == .horn && candidate[$0 + 1].base == "o"
+                    && candidate[$0 + 1].shape == .horn
+            })
+        else { return }
+        candidate[i].shape = .plain
+        if Syllable.isValid(candidate) { letters = candidate }
     }
 
     private mutating func applyChecked(_ key: Character) -> Bool {

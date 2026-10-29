@@ -22,6 +22,17 @@ struct Letter: Sendable {
 
     var isVowel: Bool { "aeiouy".contains(base) }
 
+    /// Tones sit only on vowels, and each shape only on the vowels Vietnamese gives it (â ê ô, ă, ơ ư).
+    var isVietnamese: Bool {
+        guard isVowel else { return shape == .plain && tone == .none }
+        switch shape {
+        case .plain: return true
+        case .hat: return "aeo".contains(base)
+        case .breve: return base == "a"
+        case .horn: return "ou".contains(base)
+        }
+    }
+
     var rendered: String {
         var text = String(base)
         switch shape {

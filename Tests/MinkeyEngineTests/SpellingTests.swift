@@ -20,7 +20,7 @@ func invalidChangeTypesKeyLiterally(keys: String, expected: String) {
 @Test(arguments: [
     ("class", "class"), ("mention", "mention"), ("mentions", "mentions"), ("with", "with"), ("With", "With"),
     ("tuaanfw", "tuaanfw"), ("is", "í"), ("iss", "is"), ("tieengs", "tiếng"), ("dduwowcj", "được"),
-    ("aa", "aa"), ("oo", "ô"), ("ddaay", "đây"),
+    ("aa", "aa"), ("oo", "ô"), ("ddaay", "đây"), ("thuowr", "thuở"), ("huow", "huơ"), ("khuow", "khuơ"),
 ])
 func invalidWordRestoresAtBoundary(keys: String, expected: String) {
     #expect(ended(keys) == expected)

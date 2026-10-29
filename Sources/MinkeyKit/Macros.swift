@@ -24,7 +24,11 @@ public struct Macros: Codable, Equatable, Sendable {
         return try encoder.encode(self)
     }
 
+    /// Reads an exported file; shorthand is matched case-insensitively, so keys are folded to lowercase.
     public init(importing data: Data) throws {
-        self = try JSONDecoder().decode(Macros.self, from: data)
+        let decoded = try JSONDecoder().decode(Macros.self, from: data)
+        let folded = decoded.entries.map { ($0.key.lowercased(), $0.value) }
+        self.init(
+            entries: Dictionary(folded, uniquingKeysWith: { _, last in last }), inEnglishMode: decoded.inEnglishMode)
     }
 }

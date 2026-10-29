@@ -33,6 +33,9 @@ public final class Delivery {
     /// Cursor positions minkey's own edits can explain: now, and one edit back for apps whose reports lag.
     private var expectedCursors: [Int] = []
     private var detectedModes: [String: DeliveryMode] = [:]
+    /// Where minkey's own boundary character left the cursor: the next word starts there without a read, because a
+    /// read right after minkey's edit lags in some apps (Teams).
+    private var committedCursor: Int?
     /// Letters typed in English mode, kept only to expand a macro at the boundary.
     private var englishWord = ""
 
@@ -43,6 +46,7 @@ public final class Delivery {
 
     public func activate(_ client: TextClient) {
         drop()
+        committedCursor = nil
         mode = overrides[client.bundleID] ?? detectedModes[client.bundleID] ?? detectMode(client)
         detectedModes[client.bundleID] = mode
         language = languages.language(for: client.bundleID)
@@ -139,7 +143,9 @@ public final class Delivery {
                 return false
             }
             show(final + String(character), client: client)
+            let cursor = wordStart + (final + String(character)).utf16.count
             drop()
+            committedCursor = cursor
             return true
         }
     }
@@ -147,12 +153,11 @@ public final class Delivery {
     /// Begins tracking at the cursor, continuing the word before it when two reads agree on it.
     private func startWord(_ client: TextClient) -> Bool {
         let cursor = client.selectedRange()
+        defer { committedCursor = nil }
         guard cursor.location != NSNotFound, cursor.length == 0 else { return false }
-        if cursor.location > 0 {
+        if cursor.location > 0, cursor.location != committedCursor {
             guard let before = client.text(in: NSRange(location: cursor.location - 1, length: 1)) else {
-                mode = .marked
-                detectedModes[client.bundleID] = .marked
-                return true
+                return false
             }
             if before.first?.isLetter == true {
                 guard let word = wordBefore(cursor.location, client: client) else { return false }
@@ -173,7 +178,8 @@ public final class Delivery {
             return nil
         }
         let word = String(first.reversed().prefix(while: \.isLetter).reversed())
-        return word.isEmpty || word.count >= Self.maxWordLength ? nil : word
+        guard !word.isEmpty, word.count < Self.maxWordLength, TelexEngine.canRepresent(word) else { return nil }
+        return word
     }
 
     private func begin(at start: Int, shown text: String) {

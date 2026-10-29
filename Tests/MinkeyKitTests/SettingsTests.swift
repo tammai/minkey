@@ -22,6 +22,12 @@ private func temporaryFile() -> URL {
     try store.save(settings)
     #expect(SettingsStore(url: url).load() == settings)
 
+    #expect(Settings().toggleShortcut.isAllowedToggle)
+    #expect(!Shortcut(keyCode: 49, modifiers: Shortcut.control).isAllowedToggle)
+    #expect(!Shortcut(keyCode: 49, modifiers: Shortcut.control | Shortcut.option).isAllowedToggle)
+    #expect(!Shortcut(keyCode: 0, modifiers: Shortcut.shift).isAllowedToggle)
+    #expect(Shortcut(keyCode: 6, modifiers: Shortcut.control | Shortcut.shift).isAllowedToggle)
+
     let exported = try settings.macros.exported()
     let imported = try Macros(importing: exported)
     #expect(imported == settings.macros)

@@ -15,6 +15,14 @@ import Testing
     _ = send(letters("ngf"), to: delivery, client: client)
     #expect(client.text == "tiềng")
 
+    for word in ["façade", "Müller", "niño"] {
+        let foreign = FakeClient(word)
+        let fresh = Delivery()
+        fresh.activate(foreign)
+        _ = send([.letter("s")], to: fresh, client: foreign)
+        #expect(foreign.text == word + "s")
+    }
+
     let unstable = FakeClient("tiế")
     unstable.unstableReads = true
     let other = Delivery()

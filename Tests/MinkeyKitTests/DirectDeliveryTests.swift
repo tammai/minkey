@@ -21,6 +21,10 @@ import Testing
     _ = send(letters("ng "), to: delivery, client: client)
     #expect(client.text == "Hi tiếng ")
     #expect(client.markedRange == nil)
+
+    _ = send(letters("vieetj nhes"), to: delivery, client: client)
+    #expect(delivery.mode == .direct)
+    #expect(client.text == "Hi tiếng việt nhé")
 }
 
 @Test func directModeRestoresEnglishAtBoundary() {

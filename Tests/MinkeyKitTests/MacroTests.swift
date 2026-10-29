@@ -9,6 +9,8 @@ import Testing
     #expect(macros.expand("Btw") == "By the way")
     #expect(macros.expand("BTW") == "BY THE WAY")
     #expect(macros.expand("bt") == nil)
+    let imported = try? Macros(importing: Data(#"{"entries":{"BTW":"by the way"},"inEnglishMode":false}"#.utf8))
+    #expect(imported?.expand("btw") == "by the way")
 
     let client = FakeClient()
     let delivery = Delivery()

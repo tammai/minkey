@@ -8,10 +8,18 @@ import MinkeyKit
     private let store: SettingsStore
     let diagnostics: DiagnosticLog
 
+    /// Set when the last change couldn't be saved, so the window can say it will be lost on restart.
+    @Published private(set) var saveFailed = false
+
     @Published var settings: Settings {
         didSet {
             apply()
-            try? store.save(settings)
+            do {
+                try store.save(settings)
+                saveFailed = false
+            } catch {
+                saveFailed = true
+            }
         }
     }
 

@@ -11,6 +11,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 version=${1:?usage: scripts/release.sh <version>}
+[[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "version must look like 1.2.3" >&2; exit 1; }
 : "${TEAM_ID:?}" "${INSTALLER_IDENTITY:?}" "${NOTARY_PROFILE:?}" "${SPARKLE_PUBLIC_KEY:?}"
 [[ -z "$(git status --porcelain)" ]] || { echo "commit or stash your changes first" >&2; exit 1; }
 

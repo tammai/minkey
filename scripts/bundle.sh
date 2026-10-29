@@ -30,8 +30,8 @@ runtime=()
 [[ -n "${SIGN_IDENTITY:-}" ]] && runtime=(--options runtime)
 sign() { codesign --force ${runtime[@]+"${runtime[@]}"} --sign "${SIGN_IDENTITY:--}" "$@" >&2; }
 sparkle="$app/Contents/Frameworks/Sparkle.framework/Versions/B"
-sign "$sparkle/XPCServices/Installer.xpc"
-sign --preserve-metadata=entitlements "$sparkle/XPCServices/Downloader.xpc"
+# minkey isn't sandboxed, so Sparkle's XPC services are unused; shipping them would only add attack surface.
+rm -rf "$sparkle/XPCServices"
 sign "$sparkle/Autoupdate" "$sparkle/Updater.app"
 sign "$app/Contents/Frameworks/Sparkle.framework"
 sign "$app"
