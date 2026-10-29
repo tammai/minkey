@@ -1,4 +1,4 @@
-public enum ToneStyle: Sendable {
+public enum ToneStyle: String, Codable, Sendable {
     /// `hoà`, `thuý`
     case new
     /// `hòa`, `thúy`

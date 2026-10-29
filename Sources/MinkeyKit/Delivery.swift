@@ -1,7 +1,7 @@
 import Foundation
 import MinkeyEngine
 
-public enum DeliveryMode: Sendable {
+public enum DeliveryMode: String, Codable, Sendable {
     case direct, marked
 }
 
@@ -17,6 +17,10 @@ public enum Key: Sendable {
 public final class Delivery {
     public var engine: TelexEngine
     public var overrides: [String: DeliveryMode]
+    public var macros = Macros()
+    public var languages = AppLanguages()
+    public var onEdit: ((EditRecord) -> Void)?
+    public private(set) var language: Language = .vietnamese
 
     public private(set) var mode: DeliveryMode = .direct
 
@@ -29,6 +33,8 @@ public final class Delivery {
     /// Cursor positions minkey's own edits can explain: now, and one edit back for apps whose reports lag.
     private var expectedCursors: [Int] = []
     private var detectedModes: [String: DeliveryMode] = [:]
+    /// Letters typed in English mode, kept only to expand a macro at the boundary.
+    private var englishWord = ""
 
     public init(engine: TelexEngine = TelexEngine(), overrides: [String: DeliveryMode] = [:]) {
         self.engine = engine
@@ -39,16 +45,60 @@ public final class Delivery {
         drop()
         mode = overrides[client.bundleID] ?? detectedModes[client.bundleID] ?? detectMode(client)
         detectedModes[client.bundleID] = mode
+        language = languages.language(for: client.bundleID)
     }
 
     public func deactivate(_ client: TextClient) {
-        if mode == .marked, isTracking { client.insert(engine.endWord(), replacing: Self.atCursor) }
+        if mode == .marked, isTracking { insert(finish(), replacing: Self.atCursor, client: client) }
         drop()
+    }
+
+    /// Switches this app between Vietnamese and English, remembering the choice for the app.
+    public func toggleLanguage(_ client: TextClient) {
+        deactivate(client)
+        language = language == .vietnamese ? .english : .vietnamese
+        languages.chosen[client.bundleID] = language
     }
 
     /// True when minkey handled the key; false lets the app handle it as usual.
     public func handle(_ key: Key, client: TextClient) -> Bool {
-        mode == .marked ? handleMarked(key, client: client) : handleDirect(key, client: client)
+        if language == .english { return handleEnglish(key, client: client) }
+        return mode == .marked ? handleMarked(key, client: client) : handleDirect(key, client: client)
+    }
+
+    /// The finished word, as a macro's expansion when it is one.
+    private func finish() -> String {
+        let word = engine.endWord()
+        return macros.expand(word) ?? word
+    }
+
+    private func insert(_ text: String, replacing range: NSRange, client: TextClient) {
+        client.insert(text, replacing: range)
+        onEdit?(EditRecord(app: client.bundleID, mode: mode, range: range, insertedLength: text.utf16.count))
+    }
+
+    // MARK: English
+
+    private func handleEnglish(_ key: Key, client: TextClient) -> Bool {
+        guard macros.inEnglishMode else { return false }
+        switch key {
+        case .letter(let letter):
+            englishWord.append(letter)
+        case .delete:
+            _ = englishWord.popLast()
+        case .boundary(let character):
+            defer { englishWord = "" }
+            let cursor = client.selectedRange()
+            let length = englishWord.utf16.count
+            guard let character, let expansion = macros.expand(englishWord), cursor.location != NSNotFound,
+                cursor.location >= length
+            else { return false }
+            let range = NSRange(location: cursor.location - length, length: length)
+            guard client.text(in: range) == englishWord else { return false }
+            insert(expansion + String(character), replacing: range, client: client)
+            return true
+        }
+        return false
     }
 
     // MARK: Direct
@@ -82,7 +132,7 @@ public final class Delivery {
                 drop()
                 return false
             }
-            let final = engine.endWord()
+            let final = finish()
             guard let character else {
                 show(final, client: client)
                 drop()
@@ -146,13 +196,14 @@ public final class Delivery {
         let keptUnits = String(old[..<same]).utf16.count
         let range = NSRange(location: wordStart + keptUnits, length: shown.utf16.count - keptUnits)
         let replacement = String(new[same...])
-        if range.length > 0 || !replacement.isEmpty { client.insert(replacement, replacing: range) }
+        if range.length > 0 || !replacement.isEmpty { insert(replacement, replacing: range, client: client) }
         shown = text
         let cursor = wordStart + text.utf16.count
         expectedCursors = [cursor, expectedCursors.first].compactMap { $0 }
     }
 
     private func drop() {
+        englishWord = ""
         isTracking = false
         shown = ""
         expectedCursors = []
@@ -178,7 +229,7 @@ public final class Delivery {
             return true
         case .boundary(let character):
             guard isTracking else { return false }
-            client.insert(engine.endWord() + (character.map(String.init) ?? ""), replacing: Self.atCursor)
+            insert(finish() + (character.map(String.init) ?? ""), replacing: Self.atCursor, client: client)
             drop()
             return character != nil
         }
