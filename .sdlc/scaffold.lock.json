@@ -140,6 +140,13 @@
     ".claude/settings.local.json#plugin": [
       "extraKnownMarketplaces.sdlc",
       "enabledPlugins.sdlc@sdlc"
+    ],
+    ".gitignore": [
+      ".sdlc/.work/",
+      ".sdlc/state/*.json",
+      ".sdlc/state/*.events.jsonl",
+      ".sdlc/state/*.commands/",
+      ".claude/*.local.md"
     ]
   },
   "migrations": {
@@ -160,7 +167,8 @@
       "allowlist",
       "enable-plugin",
       "context-diet",
-      "agents"
+      "agents",
+      "gitignore"
     ],
     "complete": false
   },
