@@ -18,5 +18,19 @@
     "os": [
       "macos-15"
     ]
+  },
+  "areas": {
+    "ui": [
+      "Sources/Minkey/**/*View.swift"
+    ],
+    "tests": [
+      "Tests/**"
+    ],
+    "sensitive": [
+      "**/*{secret,credential,token,crypto}*",
+      "**/.env*",
+      "scripts/release*",
+      "**/*.entitlements"
+    ]
   }
 }

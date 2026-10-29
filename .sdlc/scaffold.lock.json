@@ -18,6 +18,41 @@
       "class": "seeded",
       "sha256": "00dd41f52cb1aba1deb1fba645c607cb73bfffc31141631a3859e5cc90012782",
       "template": "builtin:invariants"
+    },
+    ".claude/rules/sdlc.md": {
+      "class": "generated",
+      "sha256": "7fdddeaf3a231e0235558eecddb46461a8a2501cb5ce5504819f934a95ffbb2d",
+      "template": "templates/project/rules/sdlc.md"
+    },
+    ".claude/rules/sdlc-code-style.md": {
+      "class": "generated",
+      "sha256": "bd5054bd96c1bd5358ef3046fd10db795a784242cf901a27cab1331569dcc6c2",
+      "template": "templates/project/rules/code-style.md"
+    },
+    ".claude/rules/sdlc-tests.md": {
+      "class": "generated",
+      "sha256": "633e85c619c9314114fcb255383bd01c9be5396954a5e02743c6ff514113d474",
+      "template": "templates/project/rules/tests.md"
+    },
+    ".claude/rules/sdlc-migrations.md": {
+      "class": "generated",
+      "sha256": "bce12efc699a5082a9639d6bbcec62af10cbb7b4d62d6cf3bf358204e5771465",
+      "template": "templates/project/rules/migrations.md"
+    },
+    ".claude/rules/sdlc-sensitive.md": {
+      "class": "generated",
+      "sha256": "201e0a1936fccd909252c884ec43c79b549d3e0863c8c837ebaa7767aec8726c",
+      "template": "templates/project/rules/sensitive.md"
+    },
+    ".claude/rules/sdlc-ci.md": {
+      "class": "generated",
+      "sha256": "802578509d423466318f2f75d702ecf35e78332f8d2ca92438512e67ed7fd96d",
+      "template": "templates/project/rules/ci.md"
+    },
+    ".claude/rules/sdlc-ui.md": {
+      "class": "generated",
+      "sha256": "70381a0bf15bd07ede693ad2693878f1e1aa4b5f605c7041521609756e1c1459",
+      "template": "templates/project/rules/ui.md"
     }
   },
   "merged": {},
@@ -32,7 +67,8 @@
       "stack",
       "skeleton",
       "commands",
-      "ci"
+      "ci",
+      "rules"
     ],
     "complete": false
   },
