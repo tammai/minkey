@@ -168,7 +168,8 @@
       "enable-plugin",
       "context-diet",
       "agents",
-      "gitignore"
+      "gitignore",
+      "prd"
     ],
     "complete": false
   },

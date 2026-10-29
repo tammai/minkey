@@ -32,5 +32,6 @@
       "scripts/release*",
       "**/*.entitlements"
     ]
-  }
+  },
+  "prd": "docs/sdlc/prd.md"
 }
