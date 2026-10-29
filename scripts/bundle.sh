@@ -22,6 +22,7 @@ if [[ -n "${SPARKLE_PUBLIC_KEY:-}" ]]; then
     /usr/libexec/PlistBuddy -c "Add :SUPublicEDKey string $SPARKLE_PUBLIC_KEY" "$plist"
 fi
 cp Resources/icon.tiff "$app/Contents/Resources/icon.tiff"
+cp Resources/AppIcon.icns "$app/Contents/Resources/AppIcon.icns"
 cp -R Resources/vi.lproj Resources/en.lproj "$app/Contents/Resources/"
 # Inside out, as Sparkle documents: --deep leaves Sparkle's own team ID on its parts, and the hardened runtime then
 # refuses to load them into minkey.
