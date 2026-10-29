@@ -42,3 +42,24 @@ struct Letter: Sendable {
         return isUpper ? text.uppercased() : text
     }
 }
+
+extension Letter {
+    /// Splits a precomposed letter such as `Ở` into base, shape, tone and case.
+    init(precomposed: Character) {
+        let scalars = String(precomposed).decomposedStringWithCanonicalMapping.unicodeScalars
+        self.init(Character(scalars.first!))
+        for mark in scalars.dropFirst() {
+            switch mark {
+            case "\u{0302}": shape = .hat
+            case "\u{0306}": shape = .breve
+            case "\u{031B}": shape = .horn
+            case "\u{0301}": tone = .acute
+            case "\u{0300}": tone = .grave
+            case "\u{0309}": tone = .hook
+            case "\u{0303}": tone = .tilde
+            case "\u{0323}": tone = .dot
+            default: break
+            }
+        }
+    }
+}

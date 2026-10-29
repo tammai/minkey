@@ -86,19 +86,3 @@ enum Syllable {
         }
     }
 }
-
-extension Letter {
-    /// A lowercase letter such as `ơ` or `â`, split into base and shape.
-    fileprivate init(precomposed: Character) {
-        let scalars = String(precomposed).decomposedStringWithCanonicalMapping.unicodeScalars
-        self.init(Character(scalars.first!))
-        for mark in scalars.dropFirst() {
-            switch mark {
-            case "\u{0302}": shape = .hat
-            case "\u{0306}": shape = .breve
-            case "\u{031B}": shape = .horn
-            default: break
-            }
-        }
-    }
-}

@@ -5,8 +5,8 @@ Record: `docs/sdlc/changes/2026-10-29-l-minkey-v1.md` · Branch: `2026-10-29-l-m
 | ID | Slice | FRs | ACs | Deps | Size | Status |
 |---|---|---|---|---|---|---|
 | B1 | Telex engine: shapes, tones, free tone, placement styles, case, undo | — | 1, 2 | — | M | done c358fd5 |
-| B2 | Spelling: syllable validation, literal key on invalid change, restore at boundary | — | 3, 4 | B1 | M | in progress |
-| B3 | Delivery logic against a text-client protocol: direct mode, safety, marked mode, resume | — | 5, 6, 7, 8 | B2 | M | todo |
+| B2 | Spelling: syllable validation, literal key on invalid change, restore at boundary | — | 3, 4 | B1 | M | done 68734dd |
+| B3 | Delivery logic against a text-client protocol: direct mode, safety, marked mode, resume | — | 5, 6, 7, 8 | B2 | M | in progress |
 | B4 | The input method app: IMK controller on B3, bundle script, local install, manual check in real apps | — | 13, 14 | B3 | M | todo |
 | B5 | Macros, per-app modes and toggle, settings store, diagnostic log | — | 9, 10, 11, 12 | B4 | M | todo |
 | B6 | Settings window (SwiftUI, Vietnamese and English) and input menu | — | 11 | B5 | M | todo |

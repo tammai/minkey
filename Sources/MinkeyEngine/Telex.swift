@@ -46,6 +46,13 @@ public struct TelexEngine: Sendable {
         }
     }
 
+    /// Continues `word`, already on screen, as the word being typed.
+    public mutating func resume(_ word: String) {
+        letters = word.map(Letter.init(precomposed:))
+        isLiteral = false
+        keys = nil
+    }
+
     /// Finishes the word at a boundary key: one that isn't Vietnamese goes back to the keys as typed.
     public mutating func endWord() -> String {
         var text = word
