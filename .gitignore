@@ -11,3 +11,4 @@ DerivedData/
 .sdlc/state/*.events.jsonl
 .sdlc/state/*.commands/
 .claude/*.local.md
+build/
