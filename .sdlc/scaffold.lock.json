@@ -144,7 +144,8 @@
       "commands",
       "ci",
       "rules",
-      "guardrails"
+      "guardrails",
+      "lint"
     ],
     "complete": false
   },
