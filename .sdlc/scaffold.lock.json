@@ -172,9 +172,10 @@
       "prd",
       "constitution",
       "design-system",
-      "knowledge"
+      "knowledge",
+      "finalize"
     ],
-    "complete": false
+    "complete": true
   },
   "command_runs": {
     "(root)": {
