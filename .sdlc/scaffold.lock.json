@@ -158,7 +158,8 @@
       "guardrails",
       "lint",
       "allowlist",
-      "enable-plugin"
+      "enable-plugin",
+      "context-diet"
     ],
     "complete": false
   },
