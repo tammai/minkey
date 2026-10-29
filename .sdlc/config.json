@@ -33,5 +33,6 @@
       "**/*.entitlements"
     ]
   },
-  "prd": "docs/sdlc/prd.md"
+  "prd": "docs/sdlc/prd.md",
+  "design": "builtin"
 }
