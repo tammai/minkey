@@ -12,7 +12,8 @@
   "setup": {
     "kind": "greenfield",
     "completed_steps": [
-      "detect"
+      "detect",
+      "stack"
     ],
     "complete": false
   }
