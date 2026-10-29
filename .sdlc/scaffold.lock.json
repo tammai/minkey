@@ -1,0 +1,19 @@
+{
+  "scaffold_version": "2.2.0",
+  "hosts": [
+    "claude-code"
+  ],
+  "files": {},
+  "merged": {},
+  "migrations": {
+    "applied": [],
+    "skipped": {}
+  },
+  "setup": {
+    "kind": "greenfield",
+    "completed_steps": [
+      "detect"
+    ],
+    "complete": false
+  }
+}

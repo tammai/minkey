@@ -1,0 +1,7 @@
+{
+  "min_plugin_version": "2.2.0",
+  "project": {
+    "kind": "greenfield"
+  },
+  "docs_dir": "docs/sdlc"
+}
