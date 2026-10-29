@@ -130,7 +130,14 @@
       "template": "templates/project/hookify/sdlc-ui-hardcoded-values.md"
     }
   },
-  "merged": {},
+  "merged": {
+    ".claude/settings.json": [
+      "Bash(swift package resolve:*)",
+      "Bash(swift test:*)",
+      "Bash(swift format lint --strict -r Package.swift Sources Tests:*)",
+      "Bash(swift build -c release:*)"
+    ]
+  },
   "migrations": {
     "applied": [],
     "skipped": {}
@@ -145,7 +152,8 @@
       "ci",
       "rules",
       "guardrails",
-      "lint"
+      "lint",
+      "allowlist"
     ],
     "complete": false
   },
