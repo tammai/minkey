@@ -156,8 +156,12 @@ public final class Delivery {
         defer { committedCursor = nil }
         guard cursor.location != NSNotFound, cursor.length == 0 else { return false }
         if cursor.location > 0, cursor.location != committedCursor {
+            // An unreadable character before the cursor (a lagging app, right after a key it typed itself) can't be
+            // resumed, but a fresh word only ever replaces letters minkey types from here on.
             guard let before = client.text(in: NSRange(location: cursor.location - 1, length: 1)) else {
-                return false
+                _ = engine.endWord()
+                begin(at: cursor.location, shown: "")
+                return true
             }
             if before.first?.isLetter == true {
                 guard let word = wordBefore(cursor.location, client: client) else { return false }

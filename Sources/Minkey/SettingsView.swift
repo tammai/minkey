@@ -155,7 +155,8 @@ struct ShortcutRecorder: View {
         let prefix = symbols.filter { shortcut.modifiers & $0.0 != 0 }.map(\.1).joined()
         let key =
             shortcut.keyCode == 49
-            ? String(localized: "Space") : keyNames[shortcut.keyCode] ?? String(localized: "Key \(shortcut.keyCode)")
+            ? String(localized: "Space")
+            : keyNames[shortcut.keyCode] ?? String(localized: "Key \(Int(shortcut.keyCode))")
         return prefix + key
     }
 }
@@ -206,7 +207,8 @@ struct MacrosView: View {
                 if rows.contains(where: { $0.short.isEmpty != $0.expansion.isEmpty }) {
                     helpText("Rows need both a shorthand and its expansion to be saved.")
                 }
-                if Set(rows.map { $0.short.lowercased() }).count < rows.count {
+                let named = rows.map { $0.short.lowercased() }.filter { !$0.isEmpty }
+                if Set(named).count < named.count {
                     helpText("Shorthand ignores case, so only the last of two matching rows is kept.")
                 }
                 if let fileError {

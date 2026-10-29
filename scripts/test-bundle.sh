@@ -20,6 +20,10 @@ expect TISIntendedLanguage vi
 expect LSUIElement true
 expect LSMinimumSystemVersion 13.0
 expect ComponentInputModeDict:tsInputModeListKey:top.bigin.inputmethod.Minkey.telex:TISIntendedLanguage vi
+for lang in vi en; do
+    grep -q '"top.bigin.inputmethod.Minkey.telex" = "minkey"' "$app/Contents/Resources/$lang.lproj/InfoPlist.strings" \
+        || { echo "the Telex mode has no display name in $lang" >&2; exit 1; }
+done
 [[ -x "$app/Contents/MacOS/Minkey" ]] || { echo "missing executable" >&2; exit 1; }
 [[ -f "$app/Contents/Resources/$(get tsInputMethodIconFileKey)" ]] || { echo "missing icon" >&2; exit 1; }
 otool -L "$app/Contents/MacOS/Minkey" | grep -q '@rpath/Sparkle.framework' \

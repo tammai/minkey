@@ -27,6 +27,18 @@ import Testing
     #expect(client.text == "Hi tiếng việt nhé")
 }
 
+@Test func passedThroughKeysDoNotStopTypingInLaggingApps() {
+    let client = FakeClient()
+    client.lagsReads = true
+    let delivery = Delivery()
+    delivery.activate(client)
+    _ = send(letters("chaof"), to: delivery, client: client)
+    _ = send([.boundary(","), .boundary(" ")], to: delivery, client: client)
+    _ = send(letters("tieengs "), to: delivery, client: client)
+    #expect(delivery.mode == .direct)
+    #expect(client.text == "chào, tiếng ")
+}
+
 @Test func directModeRestoresEnglishAtBoundary() {
     let client = FakeClient()
     let delivery = Delivery()
