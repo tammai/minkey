@@ -159,7 +159,8 @@
       "lint",
       "allowlist",
       "enable-plugin",
-      "context-diet"
+      "context-diet",
+      "agents"
     ],
     "complete": false
   },
