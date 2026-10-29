@@ -2,6 +2,11 @@ import AppKit
 import Carbon
 import InputMethodKit
 
+if CommandLine.arguments.contains("--version") {
+    print(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")
+    exit(0)
+}
+
 if CommandLine.arguments.contains("--install") {
     // Registers this bundle with Text Input Sources and enables its Telex mode, so no logout is needed.
     let url = Bundle.main.bundleURL as CFURL
@@ -13,6 +18,7 @@ if CommandLine.arguments.contains("--install") {
 }
 
 _ = AppState.shared
+Updater.start()
 let connection = Bundle.main.infoDictionary?["InputMethodConnectionName"] as? String ?? "Minkey_Connection"
 let server = IMKServer(name: connection, bundleIdentifier: Bundle.main.bundleIdentifier)
 withExtendedLifetime(server) {

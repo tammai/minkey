@@ -9,5 +9,5 @@ Record: `docs/sdlc/changes/2026-10-29-l-minkey-v1.md` · Branch: `2026-10-29-l-m
 | B3 | Delivery logic against a text-client protocol: direct mode, safety, marked mode, resume | — | 5, 6, 7, 8 | B2 | M | done 851ff56 |
 | B4 | The input method app: IMK controller on B3, bundle script, local install, manual check in real apps | — | 13, 14 | B3 | M | done 59d6043 |
 | B5 | Macros, per-app modes and toggle, settings store, diagnostic log | — | 9, 10, 11, 12 | B4 | M | done 8d9eb70 |
-| B6 | Settings window (SwiftUI, Vietnamese and English) and input menu | — | 11 | B5 | M | in progress |
-| B7 | Distribution: pkg, release script with notarization, Sparkle, compatibility list | — | 15 | B6 | M | todo |
+| B6 | Settings window (SwiftUI, Vietnamese and English) and input menu | — | 11 | B5 | M | done 233c69a |
+| B7 | Distribution: pkg, release script with notarization, Sparkle, compatibility list | — | 15 | B6 | M | in progress |

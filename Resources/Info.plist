@@ -14,6 +14,8 @@
 	<key>CFBundleLocalizations</key><array><string>vi</string><string>en</string></array>
 	<key>LSUIElement</key><true/>
 	<key>NSPrincipalClass</key><string>NSApplication</string>
+	<key>SUFeedURL</key><string>https://github.com/tammai/minkey/releases/latest/download/appcast.xml</string>
+	<key>SUEnableAutomaticChecks</key><true/>
 	<key>InputMethodConnectionName</key><string>Minkey_Connection</string>
 	<key>InputMethodServerControllerClass</key><string>MinkeyInputController</string>
 	<key>TISInputSourceID</key><string>top.bigin.inputmethod.Minkey</string>

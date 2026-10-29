@@ -22,5 +22,9 @@ expect LSMinimumSystemVersion 13.0
 expect ComponentInputModeDict:tsInputModeListKey:top.bigin.inputmethod.Minkey.telex:TISIntendedLanguage vi
 [[ -x "$app/Contents/MacOS/Minkey" ]] || { echo "missing executable" >&2; exit 1; }
 [[ -f "$app/Contents/Resources/$(get tsInputMethodIconFileKey)" ]] || { echo "missing icon" >&2; exit 1; }
-codesign --verify --strict "$app"
+otool -L "$app/Contents/MacOS/Minkey" | grep -q '@rpath/Sparkle.framework' \
+    && [[ -d "$app/Contents/Frameworks/Sparkle.framework" ]] || { echo "Sparkle.framework not embedded" >&2; exit 1; }
+codesign --verify --strict --deep "$app"
+version=$("$app/Contents/MacOS/Minkey" --version) || { echo "the app does not launch" >&2; exit 1; }
+[[ "$version" == "$(get CFBundleShortVersionString)" ]] || { echo "--version printed '$version'" >&2; exit 1; }
 echo "ok: $app"
