@@ -10,5 +10,6 @@ mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
 cp "$(swift build -c release --show-bin-path)/Minkey" "$app/Contents/MacOS/Minkey"
 cp Resources/Info.plist "$app/Contents/Info.plist"
 cp Resources/icon.tiff "$app/Contents/Resources/icon.tiff"
+cp -R Resources/vi.lproj Resources/en.lproj "$app/Contents/Resources/"
 codesign --force --options runtime --sign "${SIGN_IDENTITY:--}" "$app" >&2
 echo "$app"

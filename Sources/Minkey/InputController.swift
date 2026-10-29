@@ -29,6 +29,11 @@ final class InputController: IMKInputController {
 
     override func handle(_ event: NSEvent!, client sender: Any!) -> Bool {
         guard let event, event.type == .keyDown, let client = sender as? any IMKTextInput else { return false }
+        if isToggleShortcut(event) {
+            delivery.toggleLanguage(IMKTextClient(client))
+            MainActor.assumeIsolated { AppState.shared.languageToggled() }
+            return true
+        }
         let key = Self.key(for: event)
         return delivery.handle(key, client: IMKTextClient(client))
     }

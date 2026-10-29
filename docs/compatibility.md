@@ -23,5 +23,8 @@ Install with `scripts/install-dev.sh`, pick minkey from the input menu, then in 
 5. **Chrome**: a page's text field and the address bar, step 1.
 6. **Spotlight** (Cmd+Space): step 1 and step 2.
 7. **A terminal**: step 1. Expect underlined text while typing, committed at each space.
+8. **Settings**: from the input menu, open Settings…, switch tone placement to old style and type `hoaf` (expect
+   `hòa`); add the macro `ko` → `không` and type `ko `; press Control+Option+Space and check the app switches to
+   English, then switch to another app and back. With macOS set to Vietnamese, the window and menu are in Vietnamese.
 
 Record each app's result in the table above.

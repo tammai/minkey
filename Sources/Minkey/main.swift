@@ -12,6 +12,7 @@ if CommandLine.arguments.contains("--install") {
     exit(0)
 }
 
+_ = AppState.shared
 let connection = Bundle.main.infoDictionary?["InputMethodConnectionName"] as? String ?? "Minkey_Connection"
 let server = IMKServer(name: connection, bundleIdentifier: Bundle.main.bundleIdentifier)
 withExtendedLifetime(server) {
