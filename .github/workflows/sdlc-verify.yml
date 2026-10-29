@@ -1,0 +1,46 @@
+# Managed by the sdlc plugin v2.2.0 (seeded: replaced on upgrade only while unedited).
+# Generated from the commands in .sdlc/config.json: the same commands verify.py runs.
+name: sdlc verify
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+concurrency:
+  group: sdlc-verify-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash  # Git Bash on Windows runners: same shell everywhere
+
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["macos-15"]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      # Swift and swift-format come with the runner's Xcode; no setup action needed.
+      - name: "toolchain"
+        run: |
+          swift --version
+      - name: "install"
+        run: |
+          swift package resolve
+      - name: "lint"
+        run: |
+          swift format lint --strict -r Package.swift Sources Tests
+      - name: "build"
+        run: |
+          swift build -c release
+      - name: "test"
+        run: |
+          swift test

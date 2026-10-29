@@ -1,0 +1,38 @@
+{
+  "min_plugin_version": "2.2.0",
+  "project": {
+    "kind": "greenfield",
+    "stack": [
+      "swift"
+    ]
+  },
+  "docs_dir": "docs/sdlc",
+  "commands": {
+    "install": "swift package resolve",
+    "test": "swift test",
+    "lint": "swift format lint --strict -r Package.swift Sources Tests",
+    "typecheck": null,
+    "build": "swift build -c release"
+  },
+  "ci": {
+    "os": [
+      "macos-15"
+    ]
+  },
+  "areas": {
+    "ui": [
+      "Sources/Minkey/**/*View.swift"
+    ],
+    "tests": [
+      "Tests/**"
+    ],
+    "sensitive": [
+      "**/*{secret,credential,token,crypto}*",
+      "**/.env*",
+      "scripts/release*",
+      "**/*.entitlements"
+    ]
+  },
+  "prd": "docs/sdlc/prd.md",
+  "design": "builtin"
+}
