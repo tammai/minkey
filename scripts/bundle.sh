@@ -4,12 +4,14 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-swift build -c release --product Minkey >&2
+# Universal, so one package installs on both Intel and Apple silicon Macs.
+archs=(--arch arm64 --arch x86_64)
+swift build -c release --product Minkey "${archs[@]}" >&2
 app=build/Minkey.app
 rm -rf "$app"
 mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
-cp "$(swift build -c release --show-bin-path)/Minkey" "$app/Contents/MacOS/Minkey"
-bin=$(swift build -c release --show-bin-path)
+cp "$(swift build -c release "${archs[@]}" --show-bin-path)/Minkey" "$app/Contents/MacOS/Minkey"
+bin=$(swift build -c release "${archs[@]}" --show-bin-path)
 mkdir -p "$app/Contents/Frameworks"
 cp -R "$bin/Sparkle.framework" "$app/Contents/Frameworks/"
 cp Resources/Info.plist "$app/Contents/Info.plist"

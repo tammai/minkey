@@ -8,6 +8,9 @@ final class FakeClient: TextClient {
     var lagsReads = false
     var isTerminal = false
     var unstableReads = false
+    /// Reports this cursor whatever the text is, and ignores edits at explicit ranges past the end, like Teams
+    /// after its text is cleared.
+    var staleCursor: Int?
 
     private(set) var value: NSMutableString
     var cursor: Int
@@ -26,7 +29,7 @@ final class FakeClient: TextClient {
     var text: String { value as String }
 
     func selectedRange() -> NSRange {
-        isTerminal ? NSRange(location: 1, length: 0) : NSRange(location: cursor, length: 0)
+        isTerminal ? NSRange(location: 1, length: 0) : NSRange(location: staleCursor ?? cursor, length: 0)
     }
 
     func text(in range: NSRange) -> String? {
@@ -41,6 +44,7 @@ final class FakeClient: TextClient {
     func insert(_ text: String, replacing range: NSRange) {
         previousValue = self.text
         var target = range
+        if staleCursor != nil, range.location != NSNotFound, NSMaxRange(range) > value.length { return }
         if range.location == NSNotFound || isTerminal {
             target = markedRange ?? NSRange(location: cursor, length: 0)
         }

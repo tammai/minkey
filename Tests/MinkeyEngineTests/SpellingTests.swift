@@ -47,3 +47,20 @@ func invalidWordRestoresAtBoundary(keys: String, expected: String) {
 func commonWordsStayVietnamese(keys: String, expected: String) {
     #expect(ended(keys) == expected)
 }
+
+@Test(arguments: [("off", "off"), ("boss", "boss"), ("staff", "staff"), ("error", "error"), ("iss", "is")])
+func doubledToneKeyKeepsRealEnglishWords(keys: String, expected: String) {
+    var engine = TelexEngine()
+    engine.isEnglishWord = { ["off", "boss", "staff", "error"].contains($0) }
+    for key in keys { engine.type(key) }
+    #expect(engine.endWord() == expected)
+}
+
+@Test func bareVowelWithToneKeyStaysVietnameseUntilTheKeyRepeats() {
+    var engine = TelexEngine()
+    engine.isEnglishWord = { ["of", "off"].contains($0) }
+    for key in "of" { engine.type(key) }
+    #expect(engine.endWord() == "ò")
+    for key in "off" { engine.type(key) }
+    #expect(engine.endWord() == "off")
+}

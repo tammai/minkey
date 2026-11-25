@@ -15,18 +15,10 @@ private func temporaryFile() -> URL {
     var settings = Settings()
     settings.toneStyle = .old
     settings.spellCheck = false
-    settings.toggleShortcut = Shortcut(keyCode: 6, modifiers: Shortcut.control | Shortcut.shift)
-    settings.macros = Macros(entries: ["btw": "by the way"], inEnglishMode: true)
-    settings.languages.chosen["com.apple.Notes"] = .english
+    settings.macros = Macros(entries: ["btw": "by the way"])
     settings.overrides["com.microsoft.teams2"] = .marked
     try store.save(settings)
     #expect(SettingsStore(url: url).load() == settings)
-
-    #expect(Settings().toggleShortcut.isAllowedToggle)
-    #expect(!Shortcut(keyCode: 49, modifiers: Shortcut.control).isAllowedToggle)
-    #expect(!Shortcut(keyCode: 49, modifiers: Shortcut.control | Shortcut.option).isAllowedToggle)
-    #expect(!Shortcut(keyCode: 0, modifiers: Shortcut.shift).isAllowedToggle)
-    #expect(Shortcut(keyCode: 6, modifiers: Shortcut.control | Shortcut.shift).isAllowedToggle)
 
     let exported = try settings.macros.exported()
     let imported = try Macros(importing: exported)

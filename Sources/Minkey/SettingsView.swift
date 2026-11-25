@@ -47,14 +47,38 @@ import UniformTypeIdentifiers
 }
 
 struct SettingsView: View {
-    var body: some View {
-        TabView {
-            GeneralView().tabItem { Text("General") }
-            MacrosView().tabItem { Text("Macros") }
-            AppsView().tabItem { Text("Apps") }
-            AboutView().tabItem { Text("About") }
+    private enum Tab: CaseIterable {
+        case general, macros, about
+
+        /// Each page's own height, so the window never shows empty space below short pages.
+        var height: CGFloat {
+            switch self {
+            case .general: 287
+            case .macros: 281
+            case .about: 203
+            }
         }
-        .frame(width: 520, height: 400)
+    }
+
+    @State private var tab = Tab.general
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Picker("Page", selection: $tab) {
+                Text("General").tag(Tab.general)
+                Text("Macros").tag(Tab.macros)
+                Text("About").tag(Tab.about)
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .padding([.horizontal, .top])
+            switch tab {
+            case .general: GeneralView()
+            case .macros: MacrosView()
+            case .about: AboutView()
+            }
+        }
+        .frame(width: 520, height: tab.height)
         .safeAreaInset(edge: .bottom) { SaveStatus() }
     }
 }
@@ -82,9 +106,6 @@ struct GeneralView: View {
                 }
                 Toggle("Spell check", isOn: $state.settings.spellCheck)
                 helpText("Words that can't be Vietnamese go back to the keys you typed.")
-                LabeledContent("Vietnamese/English shortcut") {
-                    ShortcutRecorder(shortcut: $state.settings.toggleShortcut)
-                }
             }
             Section {
                 Toggle("Diagnostic log", isOn: $diagnosticsOn)
@@ -104,63 +125,6 @@ struct GeneralView: View {
     }
 }
 
-struct ShortcutRecorder: View {
-    @Binding var shortcut: Shortcut
-    @State private var monitor: Any?
-    @State private var rejected = false
-
-    var body: some View {
-        VStack(alignment: .trailing) {
-            Button(monitor == nil ? Self.describe(shortcut) : String(localized: "Press a shortcut…")) {
-                monitor == nil ? start() : stop()
-            }
-            if rejected {
-                errorText("Use Control, Option or Command, and not a shortcut macOS uses to switch input sources.")
-            }
-        }
-        .onDisappear(perform: stop)
-    }
-
-    private func start() {
-        rejected = false
-        monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
-            let modifiers = event.modifierFlags.intersection([.shift, .control, .option, .command])
-            let candidate = Shortcut(keyCode: event.keyCode, modifiers: UInt(modifiers.rawValue))
-            if candidate.isAllowedToggle {
-                shortcut = candidate
-            } else {
-                rejected = true
-            }
-            stop()
-            return nil
-        }
-    }
-
-    private func stop() {
-        if let monitor { NSEvent.removeMonitor(monitor) }
-        monitor = nil
-    }
-
-    private static let keyNames: [UInt16: String] = [
-        0: "A", 11: "B", 8: "C", 2: "D", 14: "E", 3: "F", 5: "G", 4: "H", 34: "I", 38: "J", 40: "K",
-        37: "L", 46: "M", 45: "N", 31: "O", 35: "P", 12: "Q", 15: "R", 1: "S", 17: "T", 32: "U", 9: "V", 13: "W",
-        7: "X", 16: "Y", 6: "Z", 29: "0", 18: "1", 19: "2", 20: "3", 21: "4", 23: "5", 22: "6", 26: "7", 28: "8",
-        25: "9",
-    ]
-
-    static func describe(_ shortcut: Shortcut) -> String {
-        let symbols: [(UInt, String)] = [
-            (Shortcut.control, "⌃"), (Shortcut.option, "⌥"), (Shortcut.shift, "⇧"), (Shortcut.command, "⌘"),
-        ]
-        let prefix = symbols.filter { shortcut.modifiers & $0.0 != 0 }.map(\.1).joined()
-        let key =
-            shortcut.keyCode == 49
-            ? String(localized: "Space")
-            : keyNames[shortcut.keyCode] ?? String(localized: "Key \(Int(shortcut.keyCode))")
-        return prefix + key
-    }
-}
-
 private struct MacroRow: Identifiable {
     let id = UUID()
     var short: String
@@ -176,7 +140,6 @@ struct MacrosView: View {
     var body: some View {
         Form {
             Section {
-                Toggle("Also expand in English mode", isOn: $state.settings.macros.inEnglishMode)
                 Table($rows, selection: $selection) {
                     TableColumn("Shorthand") { $row in TextField("Shorthand", text: $row.short).labelsHidden() }
                     TableColumn("Expands to") { $row in TextField("Expands to", text: $row.expansion).labelsHidden() }
@@ -258,86 +221,6 @@ struct MacrosView: View {
         } catch {
             fileError = "The macros couldn't be saved to that file."
         }
-    }
-}
-
-struct AppsView: View {
-    @EnvironmentObject private var state: AppState
-
-    @State private var selection: String?
-
-    private struct AppRow: Identifiable {
-        let id: String
-
-        var name: String {
-            guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: id) else { return id }
-            return FileManager.default.displayName(atPath: url.path)
-        }
-    }
-
-    private var apps: [AppRow] {
-        Set(state.settings.languages.chosen.keys).union(state.settings.overrides.keys).sorted().map(AppRow.init)
-    }
-
-    var body: some View {
-        Form {
-            Section {
-                Table(apps, selection: $selection) {
-                    TableColumn("App") { app in Text(app.name).help(app.id) }
-                    TableColumn("Language") { app in
-                        Picker("Language", selection: language(app.id)) {
-                            Text("Vietnamese").tag(Language.vietnamese)
-                            Text("English").tag(Language.english)
-                        }
-                        .labelsHidden()
-                    }
-                    TableColumn("Typing mode") { app in
-                        Picker("Typing mode", selection: override(app.id)) {
-                            Text("Automatic").tag(DeliveryMode?.none)
-                            Text("Direct").tag(DeliveryMode?.some(.direct))
-                            Text("Underlined").tag(DeliveryMode?.some(.marked))
-                        }
-                        .labelsHidden()
-                    }
-                }
-                .frame(minHeight: 200)
-                .overlay {
-                    if apps.isEmpty {
-                        Text("Apps appear here once you switch language in them.").foregroundStyle(.secondary)
-                    }
-                }
-                HStack {
-                    Button {
-                        if let selection {
-                            state.settings.languages.chosen[selection] = nil
-                            state.settings.overrides[selection] = nil
-                        }
-                        selection = nil
-                    } label: {
-                        Label("Remove app", systemImage: "minus")
-                    }
-                    .labelStyle(.iconOnly)
-                    .disabled(selection == nil)
-                    Spacer()
-                }
-                helpText("Underlined mode is for apps where direct typing doesn't work, such as some terminals.")
-            }
-        }
-        .formStyle(.grouped)
-    }
-
-    private func language(_ app: String) -> Binding<Language> {
-        Binding(
-            get: { state.settings.languages.language(for: app) },
-            set: { state.settings.languages.chosen[app] = $0 }
-        )
-    }
-
-    private func override(_ app: String) -> Binding<DeliveryMode?> {
-        Binding(
-            get: { state.settings.overrides[app] },
-            set: { state.settings.overrides[app] = $0 }
-        )
     }
 }
 

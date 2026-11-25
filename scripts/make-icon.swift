@@ -107,11 +107,11 @@ private func context(_ size: Int) -> CGContext {
 private func renderTile(size: Int) -> CGImage {
     let c = context(size)
     let s = Double(size)
-    let box = CGRect(x: s * 0.03, y: s * 0.12, width: s * 0.94, height: s * 0.76)
-    c.addPath(CGPath(roundedRect: box, cornerWidth: s * 0.16, cornerHeight: s * 0.16, transform: nil))
+    let box = CGRect(x: s * 0.02, y: s * 0.06, width: s * 0.96, height: s * 0.88)
+    c.addPath(CGPath(roundedRect: box, cornerWidth: s * 0.2, cornerHeight: s * 0.2, transform: nil))
     c.setFillColor(CGColor(gray: 0, alpha: 1))
     c.fillPath()
-    let font = CTFontCreateWithName("SFCompact-Bold" as CFString, s * 0.56, nil)
+    let font = CTFontCreateWithName("SFCompact-Bold" as CFString, s * 0.62, nil)
     let text = NSAttributedString(string: "VI", attributes: [.font: font, .kern: s * 0.02])
     let line = CTLineCreateWithAttributedString(text)
     let bounds = CTLineGetImageBounds(line, c)
@@ -150,10 +150,12 @@ private func writePNG(_ image: CGImage, to url: URL, dpi: Double = 72) {
     CGImageDestinationFinalize(dest)
 }
 
-private func writeTIFF(_ images: [CGImage], to url: URL, dpi: Double) {
+/// A 16-point icon with a 2x rep: dpi scales with pixel size so the system sees point size 16, not 16/32/64/128.
+private func writeTIFF(_ images: [CGImage], to url: URL) {
     guard let dest = CGImageDestinationCreateWithURL(url as CFURL, UTType.tiff.identifier as CFString,
                                                      images.count, nil) else { return }
     for image in images {
+        let dpi = 72.0 * Double(image.height) / 16
         CGImageDestinationAddImage(dest, image, [kCGImagePropertyDPIWidth: dpi,
                                                  kCGImagePropertyDPIHeight: dpi,
                                                  kCGImagePropertyTIFFCompression: 5] as CFDictionary)
@@ -186,9 +188,8 @@ private func writeICNS(to url: URL, from render: (Int) -> CGImage) {
 
 private let resources = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
     .appendingPathComponent("Resources")
-let tiffSizes = [16, 32, 64, 128]
-writeTIFF(tiffSizes.map(renderTile), to: resources.appendingPathComponent("icon.tiff"), dpi: 72)
-writeTIFF(tiffSizes.map(renderMonochrome), to: resources.appendingPathComponent("icon-monochrome.tiff"),
-          dpi: 72)
+let tiffSizes = [16, 32]
+writeTIFF(tiffSizes.map(renderTile), to: resources.appendingPathComponent("icon.tiff"))
+writeTIFF(tiffSizes.map(renderMonochrome), to: resources.appendingPathComponent("icon-monochrome.tiff"))
 writeICNS(to: resources.appendingPathComponent("AppIcon.icns"), from: renderAppIcon)
 print("wrote Resources/icon.tiff, Resources/icon-monochrome.tiff, Resources/AppIcon.icns")

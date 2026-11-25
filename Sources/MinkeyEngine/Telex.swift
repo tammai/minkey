@@ -9,6 +9,8 @@ public enum ToneStyle: String, Codable, Sendable {
 public struct TelexEngine: Sendable {
     public var toneStyle: ToneStyle
     public var spellCheck: Bool
+    /// Tells a doubled tone key that spells an English word (`off`, `boss`) from one meant as an undo (`iss`).
+    public var isEnglishWord: (@Sendable (String) -> Bool)?
 
     private var letters: [Letter] = []
     /// Set by an undo: the rest of the word is typed as plain letters, so a repeated key never toggles.
@@ -65,7 +67,10 @@ public struct TelexEngine: Sendable {
     public mutating func endWord() -> String {
         if spellCheck, !isLiteral, !Syllable.isValid(letters) { openHornedPair() }
         var text = word
-        if spellCheck, !isLiteral, let typed = keys, !Syllable.isValid(letters) { text = String(typed) }
+        if spellCheck, let typed = keys, !Syllable.isValid(letters) {
+            let raw = String(typed)
+            if !isLiteral || isEnglishWord?(raw) == true { text = raw }
+        }
         letters = []
         isLiteral = false
         keys = []
@@ -165,13 +170,6 @@ public struct TelexEngine: Sendable {
         if !hooked.isEmpty {
             for i in hooked { reshape(i, to: .plain) }
             undo(key)
-            return true
-        }
-        if nucleus.isEmpty {
-            var letter = Letter(key)
-            letter.base = "u"
-            letter.shape = .horn
-            letters.append(letter)
             return true
         }
         return false

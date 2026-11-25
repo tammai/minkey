@@ -3,27 +3,17 @@ import Testing
 
 @testable import MinkeyKit
 
-@Test func perAppModeAndToggle() {
-    let notes = FakeClient(bundleID: "com.apple.Notes")
+@Test func teamsEditsInPlaceEvenWhenItCannotReadBack() {
     let teams = FakeClient(bundleID: "com.microsoft.teams2")
-    let terminal = FakeClient(bundleID: "com.apple.Terminal")
+    teams.isTerminal = true
     let delivery = Delivery()
-
-    delivery.activate(notes)
-    #expect(delivery.language == .vietnamese)
-    delivery.toggleLanguage(notes)
-    #expect(delivery.language == .english)
-    #expect(send(letters("tieengs"), to: delivery, client: notes).allSatisfy { !$0 })
-    #expect(notes.text == "tieengs")
-
     delivery.activate(teams)
-    #expect(delivery.language == .vietnamese)
-    _ = send(letters("tieengs"), to: delivery, client: teams)
-    #expect(teams.text == "tiếng")
+    #expect(delivery.mode == .direct)
+}
 
-    delivery.activate(notes)
-    #expect(delivery.language == .english)
-    delivery.activate(terminal)
-    #expect(delivery.language == .english)
-    #expect(delivery.languages.chosen["com.apple.Notes"] == .english)
+@Test(arguments: ["com.stablyai.orca", "com.apple.Terminal", "com.googlecode.iterm2"])
+func terminalsUseMarkedTextEvenWhenTheirCursorLooksReadable(bundleID: String) {
+    let delivery = Delivery()
+    delivery.activate(FakeClient("", bundleID: bundleID))
+    #expect(delivery.mode == .marked)
 }

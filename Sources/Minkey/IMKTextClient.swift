@@ -24,7 +24,7 @@ final class IMKTextClient: TextClient {
 
     func setMarked(_ text: String) {
         client.setMarkedText(
-            text,
+            NSAttributedString(string: text),
             selectionRange: NSRange(location: text.utf16.count, length: 0),
             replacementRange: NSRange(location: NSNotFound, length: 0)
         )

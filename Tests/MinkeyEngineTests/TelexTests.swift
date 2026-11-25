@@ -9,8 +9,8 @@ func typed(_ keys: String, style: ToneStyle = .new) -> String {
 }
 
 @Test(arguments: [
-    ("aa", "â"), ("ee", "ê"), ("oo", "ô"), ("aw", "ă"), ("ow", "ơ"), ("uw", "ư"), ("dd", "đ"), ("w", "ư"),
-    ("tw", "tư"), ("as", "á"), ("af", "à"), ("ar", "ả"), ("ax", "ã"), ("aj", "ạ"), ("asz", "a"),
+    ("aa", "â"), ("ee", "ê"), ("oo", "ô"), ("aw", "ă"), ("ow", "ơ"), ("uw", "ư"), ("dd", "đ"), ("w", "w"), ("tw", "tw"),
+    ("as", "á"), ("af", "à"), ("ar", "ả"), ("ax", "ã"), ("aj", "ạ"), ("asz", "a"),
     ("tieengs", "tiếng"), ("tieesng", "tiếng"), ("tiengse", "tiếng"),
     ("dduwowcj", "được"), ("duocwdj", "được"), ("nguowif", "người"), ("truwowngf", "trường"),
     ("hoawcj", "hoặc"), ("quas", "quá"), ("quys", "quý"), ("gif", "gì"), ("mufa", "mùa"), ("muwas", "mứa"),
@@ -29,7 +29,7 @@ func telexWords(keys: String, expected: String) {
 }
 
 @Test(arguments: [
-    ("ass", "as"), ("aaa", "aa"), ("ddd", "dd"), ("uww", "uw"), ("asff", "af"), ("afff", "aff"), ("assf", "asf"),
+    ("ass", "as"), ("aaa", "aa"), ("ddd", "dd"), ("uww", "uw"), ("ww", "ww"), ("asff", "af"), ("afff", "aff"), ("assf", "asf"),
     ("tieengss", "tiêngs"), ("fff", "fff"),
 ])
 func undoTypesKeyAndStaysLiteral(keys: String, expected: String) {

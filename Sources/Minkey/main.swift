@@ -17,10 +17,20 @@ if CommandLine.arguments.contains("--install") {
     exit(0)
 }
 
+/// Opening the app again (`open` on its bundle) shows Settings, for when the input menu has no minkey items.
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        SettingsWindow.show()
+        return false
+    }
+}
+
 _ = AppState.shared
 Updater.start()
 let connection = Bundle.main.infoDictionary?["InputMethodConnectionName"] as? String ?? "Minkey_Connection"
 let server = IMKServer(name: connection, bundleIdentifier: Bundle.main.bundleIdentifier)
-withExtendedLifetime(server) {
+let delegate = AppDelegate()
+NSApplication.shared.delegate = delegate
+withExtendedLifetime((server, delegate)) {
     NSApplication.shared.run()
 }

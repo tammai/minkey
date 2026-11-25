@@ -71,3 +71,12 @@ import Testing
     #expect(handled.prefix(5).allSatisfy { $0 })
     #expect(handled.suffix(5).allSatisfy { !$0 })
 }
+
+@Test func typingWorksWhenTheAppReportsAStaleCursor() {
+    let client = FakeClient(bundleID: "com.microsoft.teams2")
+    client.staleCursor = 56
+    let delivery = Delivery()
+    delivery.activate(client)
+    _ = send(letters("vi"), to: delivery, client: client)
+    #expect(client.text == "vi")
+}

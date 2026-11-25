@@ -9,7 +9,7 @@ import Testing
     #expect(macros.expand("Btw") == "By the way")
     #expect(macros.expand("BTW") == "BY THE WAY")
     #expect(macros.expand("bt") == nil)
-    let imported = try? Macros(importing: Data(#"{"entries":{"BTW":"by the way"},"inEnglishMode":false}"#.utf8))
+    let imported = try? Macros(importing: Data(#"{"entries":{"BTW":"by the way"}}"#.utf8))
     #expect(imported?.expand("btw") == "by the way")
 
     let client = FakeClient()
@@ -18,12 +18,4 @@ import Testing
     delivery.activate(client)
     _ = send(letters("Btw ko "), to: delivery, client: client)
     #expect(client.text == "By the way không ")
-
-    delivery.toggleLanguage(client)
-    _ = send(letters("btw "), to: delivery, client: client)
-    #expect(client.text == "By the way không btw ")
-
-    delivery.macros.inEnglishMode = true
-    _ = send(letters("btw "), to: delivery, client: client)
-    #expect(client.text == "By the way không btw by the way ")
 }

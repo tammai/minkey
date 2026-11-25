@@ -18,14 +18,21 @@ public final class Delivery {
     public var engine: TelexEngine
     public var overrides: [String: DeliveryMode]
     public var macros = Macros()
-    public var languages = AppLanguages()
     public var onEdit: ((EditRecord) -> Void)?
-    public private(set) var language: Language = .vietnamese
 
     public private(set) var mode: DeliveryMode = .direct
 
     /// Longer runs of letters (a held key, a pasted burst) aren't words; they pass through untouched.
     static let maxWordLength = 32
+
+    /// Web editors that draw marked text underlined; their replacement ranges work, so edit in place instead.
+    static let directByDefault: Set<String> = ["com.microsoft.teams2"]
+
+    /// Terminals report a cursor but can't be read back, and at an empty prompt that looks like a plain field.
+    static let markedByDefault: Set<String> = [
+        "com.apple.Terminal", "com.googlecode.iterm2", "dev.warp.Warp-Stable", "net.kovidgoyal.kitty",
+        "com.mitchellh.ghostty", "org.alacritty", "com.github.wez.wezterm", "com.stablyai.orca",
+    ]
 
     private var isTracking = false
     private var wordStart = 0
@@ -36,8 +43,6 @@ public final class Delivery {
     /// Where minkey's own boundary character left the cursor: the next word starts there without a read, because a
     /// read right after minkey's edit lags in some apps (Teams).
     private var committedCursor: Int?
-    /// Letters typed in English mode, kept only to expand a macro at the boundary.
-    private var englishWord = ""
 
     public init(engine: TelexEngine = TelexEngine(), overrides: [String: DeliveryMode] = [:]) {
         self.engine = engine
@@ -47,9 +52,8 @@ public final class Delivery {
     public func activate(_ client: TextClient) {
         drop()
         committedCursor = nil
-        mode = overrides[client.bundleID] ?? detectedModes[client.bundleID] ?? detectMode(client)
+        mode = overrides[client.bundleID] ?? detectedModes[client.bundleID] ?? defaultMode(client)
         detectedModes[client.bundleID] = mode
-        language = languages.language(for: client.bundleID)
     }
 
     public func deactivate(_ client: TextClient) {
@@ -57,16 +61,8 @@ public final class Delivery {
         drop()
     }
 
-    /// Switches this app between Vietnamese and English, remembering the choice for the app.
-    public func toggleLanguage(_ client: TextClient) {
-        deactivate(client)
-        language = language == .vietnamese ? .english : .vietnamese
-        languages.chosen[client.bundleID] = language
-    }
-
     /// True when minkey handled the key; false lets the app handle it as usual.
     public func handle(_ key: Key, client: TextClient) -> Bool {
-        if language == .english { return handleEnglish(key, client: client) }
         return mode == .marked ? handleMarked(key, client: client) : handleDirect(key, client: client)
     }
 
@@ -79,30 +75,6 @@ public final class Delivery {
     private func insert(_ text: String, replacing range: NSRange, client: TextClient) {
         client.insert(text, replacing: range)
         onEdit?(EditRecord(app: client.bundleID, mode: mode, range: range, insertedLength: text.utf16.count))
-    }
-
-    // MARK: English
-
-    private func handleEnglish(_ key: Key, client: TextClient) -> Bool {
-        guard macros.inEnglishMode else { return false }
-        switch key {
-        case .letter(let letter):
-            englishWord.append(letter)
-        case .delete:
-            _ = englishWord.popLast()
-        case .boundary(let character):
-            defer { englishWord = "" }
-            let cursor = client.selectedRange()
-            let length = englishWord.utf16.count
-            guard let character, let expansion = macros.expand(englishWord), cursor.location != NSNotFound,
-                cursor.location >= length
-            else { return false }
-            let range = NSRange(location: cursor.location - length, length: length)
-            guard client.text(in: range) == englishWord else { return false }
-            insert(expansion + String(character), replacing: range, client: client)
-            return true
-        }
-        return false
     }
 
     // MARK: Direct
@@ -206,14 +178,17 @@ public final class Delivery {
         let keptUnits = String(old[..<same]).utf16.count
         let range = NSRange(location: wordStart + keptUnits, length: shown.utf16.count - keptUnits)
         let replacement = String(new[same...])
-        if range.length > 0 || !replacement.isEmpty { insert(replacement, replacing: range, client: client) }
+        // Appending names no position: an app whose reported cursor is stale (Teams once its text is cleared) still
+        // inserts at its real caret.
+        if range.length > 0 || !replacement.isEmpty {
+            insert(replacement, replacing: range.length == 0 ? Self.atCursor : range, client: client)
+        }
         shown = text
         let cursor = wordStart + text.utf16.count
         expectedCursors = [cursor, expectedCursors.first].compactMap { $0 }
     }
 
     private func drop() {
-        englishWord = ""
         isTracking = false
         shown = ""
         expectedCursors = []
@@ -243,6 +218,11 @@ public final class Delivery {
             drop()
             return character != nil
         }
+    }
+
+    private func defaultMode(_ client: TextClient) -> DeliveryMode {
+        if Self.directByDefault.contains(client.bundleID) { return .direct }
+        return Self.markedByDefault.contains(client.bundleID) ? .marked : detectMode(client)
     }
 
     private func detectMode(_ client: TextClient) -> DeliveryMode {

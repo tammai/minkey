@@ -34,8 +34,7 @@ Slack, browsers and native apps. Installed by non-developers from GitHub. (infer
 1. Telex with free tone placement. (inferred, confirm)
 2. Spell check that restores the typed letters when a word can't be Vietnamese. (inferred, confirm)
 3. Macros: user shorthand that expands and follows capitalisation. (inferred, confirm)
-4. Per-app Vietnamese/English memory. (inferred, confirm)
-5. A settings window in Vietnamese and English. (inferred, confirm)
+4. A settings window in Vietnamese and English. (inferred, confirm)
 
 ## Constraints
 

@@ -37,13 +37,17 @@ import MinkeyKit
     private func apply() {
         delivery.engine.toneStyle = settings.toneStyle
         delivery.engine.spellCheck = settings.spellCheck
+        delivery.engine.isEnglishWord = Self.isEnglishWord
         delivery.macros = settings.macros
-        delivery.languages = settings.languages
         delivery.overrides = settings.overrides
     }
 
-    /// Saves the language the delivery just switched an app to.
-    func languageToggled() {
-        settings.languages = delivery.languages
+    /// IMKit calls the controller on the main thread, which is where `NSSpellChecker` must be used.
+    private nonisolated static func isEnglishWord(_ word: String) -> Bool {
+        MainActor.assumeIsolated {
+            let misspelled = NSSpellChecker.shared.checkSpelling(
+                of: word, startingAt: 0, language: "en", wrap: false, inSpellDocumentWithTag: 0, wordCount: nil)
+            return misspelled.location == NSNotFound
+        }
     }
 }
